@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HopePlates - Connecting Surplus Food to Those in Need</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">HopePlates</div>
+
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="login.html">Donate Food</a>
+    <a href="ngo-register.html">Register NGO</a>
+    <a href="analytics.html">Impact</a>
+  </div>
+
+  <a href="login.html" class="btn outline">Login</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero-wrapper">
+  <div class="hero-container">
+
+    <div class="hero-text">
+      <h1>
+        Turning Surplus into<br>
+        <span class="highlight">Smiles</span>
+      </h1>
+
+      <p>
+        HopePlates connects food donors, transport NGOs, and orphanages
+        to ensure safe and timely food delivery for children in need.
+        Join us in the fight against food waste and hunger.
+      </p>
+
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <a href="login.html" class="btn primary">
+          Donate Food Now →
+        </a>
+        <a href="ngo-register.html" class="btn secondary">
+          Join as NGO Partner
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      <img src="hero.jpeg" alt="Food Donation">
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <h2 class="section-title">How It Works</h2>
+
+  <div class="grid-3">
+    <div class="card how-card">
+      <i class="fa-solid fa-box-open icon"></i>
+      <h3>Donate Surplus Food</h3>
+      <p>Events and households list extra food with location details. Our smart matching algorithm finds the best NGO partners nearby.</p>
+    </div>
+
+    <div class="card how-card">
+      <i class="fa-solid fa-truck icon"></i>
+      <h3>NGO Coordinates Pickup</h3>
+      <p>Verified NGOs with high reliability scores receive notifications and coordinate fast, safe pickup within the time window.</p>
+    </div>
+
+    <div class="card how-card">
+      <i class="fa-solid fa-heart icon"></i>
+      <h3>Delivered to Recipients</h3>
+      <p>Nutritious meals reach orphanages, old-age homes, and community kitchens on time, tracked for impact measurement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section light">
+  <h2 class="section-title">Platform Features</h2>
+
+  <div class="grid-3">
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-location-dot" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Location-Based Matching</h3>
+      <p>GPS-powered proximity matching ensures NGOs closest to surplus food get priority notifications</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-star" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Reliability Scoring</h3>
+      <p>NGOs are rated on completion rates and on-time delivery, ensuring quality service</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-chart-line" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Real-Time Tracking</h3>
+      <p>Track donation status from submission to delivery with live updates</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-bell" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Instant Notifications</h3>
+      <p>NGOs receive immediate alerts when matching donations become available nearby</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-shield-halved" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Safe & Verified</h3>
+      <p>All NGO partners are verified with registration numbers and location confirmation</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <i class="fa-solid fa-globe" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>SDG Aligned Impact</h3>
+      <p>Track contributions to UN SDG 2 (Zero Hunger), SDG 12 (Responsible Consumption), and SDG 17 (Partnerships)</p>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="section">
+  <h2 class="section-title">Our Impact</h2>
+
+  <div class="stats">
+    <div class="stat">
+      <h2 id="impactMeals">Loading...</h2>
+      <p>Meals Served</p>
+    </div>
+
+    <div class="stat">
+      <h2 id="impactDonations">Loading...</h2>
+      <p>Total Donations</p>
+    </div>
+
+    <div class="stat">
+      <h2 id="impactNGOs">Loading...</h2>
+      <p>NGO Partners</p>
+    </div>
+
+    <div class="stat">
+      <h2 id="impactSDGs">3 SDGs</h2>
+      <p>Global Goals Supported</p>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="analytics.html" class="btn primary">View Full Impact Dashboard →</a>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="section light">
+  <div class="card" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 3rem;">
+    <h2 style="color: var(--primary); margin-bottom: 1rem;">Ready to Make a Difference?</h2>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">
+      Whether you have surplus food to donate or want to help distribute meals to those in need, 
+      we make it easy to contribute to a sustainable future.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="login.html" class="btn primary" style="min-width: 200px;">I Want to Donate Food</a>
+      <a href="ngo-register.html" class="btn secondary" style="min-width: 200px;">I'm an NGO</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>HopePlates · Designed for Social Impact 🌱</p>
+  <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+    <a href="analytics.html" style="color: var(--text-muted); margin: 0 0.5rem;">Impact Dashboard</a> | 
+    <a href="login.html" style="color: var(--text-muted); margin: 0 0.5rem;">Login</a> | 
+    <a href="ngo-register.html" style="color: var(--text-muted); margin: 0 0.5rem;">Register</a>
+  </p>
+</footer>
+
+<script>
+// Load live impact stats
+async function loadImpactStats() {
+  try {
+    const res = await fetch('/api/analytics');
+    const data = await res.json();
+
+    document.getElementById('impactMeals').textContent = (data.totalMealsServed || 0).toLocaleString();
+    document.getElementById('impactDonations').textContent = (data.totalDonors || 0).toLocaleString();
+    document.getElementById('impactNGOs').textContent = (data.activeNGOs || 0).toLocaleString();
+  } catch (error) {
+    console.error('Error loading impact stats:', error);
+    document.getElementById('impactMeals').textContent = '--';
+    document.getElementById('impactDonations').textContent = '--';
+    document.getElementById('impactNGOs').textContent = '--';
+  }
+}
+
+// Load on page load
+loadImpactStats();
+</script>
+
+</body>
+</html>

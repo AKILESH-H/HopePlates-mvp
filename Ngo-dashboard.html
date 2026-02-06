@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NGO Dashboard | HopePlates</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar select {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+    }
+    .distance-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #dbeafe;
+      color: #1e40af;
+      margin-left: 0.5rem;
+    }
+    .distance-near { background: #dcfce7; color: #166534; }
+    .distance-medium { background: #fef3c7; color: #92400e; }
+    .distance-far { background: #fee2e2; color: #991b1b; }
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border-light);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .reliability-score {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: #f0fdf4;
+      border-radius: 8px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2>NGO Dashboard</h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
+        Organization: <strong id="ngoName">Loading...</strong>
+      </p>
+    </div>
+    <div class="reliability-score">
+      ⭐ Reliability Score: <strong id="reliabilityScore">100</strong>%
+    </div>
+  </div>
+</header>
+
+<main class="dashboard" style="max-width: 1400px; margin: 0 auto;">
+
+  <!-- STATS OVERVIEW -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number" id="availableCount">0</div>
+      <p>Available Donations</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="activeCount">0</div>
+      <p>Active Pickups</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="completedCount">0</div>
+      <p>Completed Today</p>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card">
+    <div class="filter-bar">
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="Available">Available</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Picked Up">Picked Up</option>
+      </select>
+      
+      <select id="distanceFilter">
+        <option value="all">All Distances</option>
+        <option value="5">Within 5 km</option>
+        <option value="10">Within 10 km</option>
+        <option value="20">Within 20 km</option>
+      </select>
+      
+      <select id="foodTypeFilter">
+        <option value="all">All Food Types</option>
+        <option value="Veg">Veg</option>
+        <option value="Non-Veg">Non-Veg</option>
+        <option value="Mixed">Mixed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- DONATION LISTINGS -->
+  <div id="ngo-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Donor events will populate here -->
+  </div>
+
+</main>
+
+<script>
+const container = document.getElementById('ngo-container');
+let currentNGO = null;
+let allDonors = [];
+let allMatches = [];
+
+// Get current NGO info
+async function loadNGOProfile() {
+  try {
+    // In production, get NGO ID from session/auth
+    const ngoId = localStorage.getItem('ngoId') || 'ngo_1';
+    
+    const res = await fetch(`/api/ngo/${ngoId}`);
+    if (res.ok) {
+      currentNGO = await res.json();
+      document.getElementById('ngoName').textContent = currentNGO.name || 'Test NGO';
+      document.getElementById('reliabilityScore').textContent = currentNGO.reliabilityScore || 100;
+    }
+  } catch (error) {
+    console.error('Error loading NGO profile:', error);
+  }
+}
+
+// Calculate distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return (R * c).toFixed(1); // Distance in km
+}
+
+// Get distance badge class
+function getDistanceBadgeClass(distance) {
+  const dist = parseFloat(distance);
+  if (dist <= 5) return 'distance-near';
+  if (dist <= 10) return 'distance-medium';
+  return 'distance-far';
+}
+
+// Load donor events with filtering
+async function loadDonorEvents() {
+  try {
+    const res = await fetch('/api/donor');
+    allDonors = await res.json();
+
+    // Apply filters
+    const statusFilter = document.getElementById('statusFilter').value;
+    const distanceFilter = document.getElementById('distanceFilter').value;
+    const foodTypeFilter = document.getElementById('foodTypeFilter').value;
+
+    let filteredDonors = allDonors;
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      filteredDonors = filteredDonors.filter(d => d.status === statusFilter);
+    }
+
+    // Food type filter
+    if (foodTypeFilter !== 'all') {
+      filteredDonors = filteredDonors.filter(d => d.foodType === foodTypeFilter);
+    }
+
+    // Distance filter (if NGO has location)
+    if (distanceFilter !== 'all' && currentNGO?.latitude && currentNGO?.longitude) {
+      filteredDonors = filteredDonors.filter(d => {
+        if (!d.latitude || !d.longitude) return false;
+        const distance = calculateDistance(
+          currentNGO.latitude,
+          currentNGO.longitude,
+          d.latitude,
+          d.longitude
+        );
+        return parseFloat(distance) <= parseFloat(distanceFilter);
+      });
+    }
+
+    // Update stats
+    const available = allDonors.filter(d => d.status === 'Available').length;
+    const active = allDonors.filter(d => d.status === 'Accepted' || d.status === 'Picked Up').length;
+    const completed = allDonors.filter(d => d.status === 'Delivered').length;
+
+    document.getElementById('availableCount').textContent = available;
+    document.getElementById('activeCount').textContent = active;
+    document.getElementById('completedCount').textContent = completed;
+
+    // Render donors
+    container.innerHTML = '';
+
+    if (filteredDonors.length === 0) {
+      container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; padding: 3rem;"><p style="color: var(--text-muted);">No donations match your filters</p></div>';
+      return;
+    }
+
+    filteredDonors.forEach(donor => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      let statusColor;
+      switch(donor.status) {
+        case 'Accepted': statusColor = '🔵'; break;
+        case 'Picked Up': statusColor = '🚚'; break;
+        case 'Delivered': statusColor = '✅'; break;
+        default: statusColor = '🟡';
+      }
+
+      // Calculate distance if possible
+      let distanceHTML = '';
+      if (currentNGO?.latitude && currentNGO?.longitude && donor.latitude && donor.longitude) {
+        const distance = calculateDistance(
+          currentNGO.latitude,
+          currentNGO.longitude,
+          donor.latitude,
+          donor.longitude
+        );
+        const badgeClass = getDistanceBadgeClass(distance);
+        distanceHTML = `<span class="distance-badge ${badgeClass}">📍 ${distance} km</span>`;
+      }
+
+      card.innerHTML = `
+        <h3>${donor.eventSpaceName} ${statusColor}</h3>
+        ${distanceHTML}
+        <p style="margin-top: 1rem;"><strong>📍 Location:</strong> ${donor.location}</p>
+        <p><strong>🍽️ Food Type:</strong> ${donor.foodType} (${donor.foodCategory})</p>
+        <p><strong>👥 Quantity:</strong> ${donor.quantity} people</p>
+        <p><strong>⏰ Pickup Time:</strong> ${donor.pickupTime}</p>
+        <p><strong>📞 Contact:</strong> ${donor.contactPerson} - ${donor.contactNumber}</p>
+        <p><strong>Status:</strong> <span style="color: var(--primary); font-weight: 600;">${donor.status}</span></p>
+        
+        <div class="action-buttons">
+          ${donor.status === 'Available' ? `
+            <button class="btn primary" onclick="acceptPickup('${donor.id}')">✅ Accept Pickup</button>
+          ` : ''}
+          
+          ${donor.status === 'Accepted' ? `
+            <button class="btn secondary" onclick="markPickedUp('${donor.id}')">🚚 Mark Picked Up</button>
+          ` : ''}
+          
+          ${donor.status === 'Picked Up' ? `
+            <button class="btn secondary" onclick="showDeliveryForm('${donor.id}')">📦 Mark Delivered</button>
+          ` : ''}
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  } catch (error) {
+    console.error('Error loading donations:', error);
+  }
+}
+
+// Accept pickup
+async function acceptPickup(donorId) {
+  if (!confirm('Accept this food donation for pickup?')) return;
+
+  try {
+    // Find match for this donor
+    const matchRes = await fetch('/api/matches');
+    const matches = await matchRes.json();
+    const match = matches.find(m => m.donorId === donorId && m.status === 'Suggested');
+
+    if (match) {
+      const res = await fetch(`/api/matches/${match.id}/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (res.ok) {
+        alert('✅ Pickup accepted! Please coordinate with the donor.');
+        loadDonorEvents();
+      }
+    } else {
+      // Fallback: update donor directly
+      const res = await fetch(`/api/donor/${donorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Accepted' })
+      });
+
+      if (res.ok) {
+        alert('✅ Pickup accepted!');
+        loadDonorEvents();
+      }
+    }
+  } catch (error) {
+    console.error('Error accepting pickup:', error);
+    alert('❌ Error accepting pickup');
+  }
+}
+
+// Mark as picked up
+async function markPickedUp(donorId) {
+  if (!confirm('Confirm that food has been picked up?')) return;
+
+  try {
+    const matchRes = await fetch('/api/matches');
+    const matches = await matchRes.json();
+    const match = matches.find(m => m.donorId === donorId && m.status === 'Accepted');
+
+    if (match) {
+      const res = await fetch(`/api/matches/${match.id}/pickup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (res.ok) {
+        alert('✅ Marked as picked up!');
+        loadDonorEvents();
+      }
+    } else {
+      // Fallback
+      const res = await fetch(`/api/donor/${donorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Picked Up' })
+      });
+
+      if (res.ok) {
+        alert('✅ Marked as picked up!');
+        loadDonorEvents();
+      }
+    }
+  } catch (error) {
+    console.error('Error marking picked up:', error);
+    alert('❌ Error updating status');
+  }
+}
+
+// Show delivery form
+function showDeliveryForm(donorId) {
+  const recipientName = prompt('Enter recipient organization name (e.g., orphanage name):');
+  if (!recipientName) return;
+
+  const peopleServed = prompt('How many people were served?');
+  if (!peopleServed) return;
+
+  const onTime = confirm('Was the delivery made within the pickup time window?');
+
+  markDelivered(donorId, recipientName, parseInt(peopleServed), onTime);
+}
+
+// Mark as delivered
+async function markDelivered(donorId, recipientName, peopleServed, deliveredOnTime) {
+  try {
+    const matchRes = await fetch('/api/matches');
+    const matches = await matchRes.json();
+    const match = matches.find(m => m.donorId === donorId && m.status === 'Picked Up');
+
+    if (match) {
+      const res = await fetch(`/api/matches/${match.id}/deliver`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientName,
+          peopleServed,
+          deliveredOnTime
+        })
+      });
+
+      if (res.ok) {
+        alert('✅ Delivery completed! Great work!');
+        loadDonorEvents();
+        loadNGOProfile(); // Refresh reliability score
+      }
+    } else {
+      // Fallback
+      const res = await fetch(`/api/donor/${donorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Delivered' })
+      });
+
+      if (res.ok) {
+        alert('✅ Delivery completed!');
+        loadDonorEvents();
+      }
+    }
+  } catch (error) {
+    console.error('Error marking delivered:', error);
+    alert('❌ Error updating delivery status');
+  }
+}
+
+// Add event listeners for filters
+document.getElementById('statusFilter').addEventListener('change', loadDonorEvents);
+document.getElementById('distanceFilter').addEventListener('change', loadDonorEvents);
+document.getElementById('foodTypeFilter').addEventListener('change', loadDonorEvents);
+
+// Initial load
+loadNGOProfile();
+loadDonorEvents();
+
+// Auto-refresh every 5 seconds
+setInterval(loadDonorEvents, 5000);
+</script>
+
+</body>
+</html>

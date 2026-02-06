@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Impact Dashboard | HopePlates</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .metric-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      margin: 0.5rem 0;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .metric-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .sdg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .sdg-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 2px solid var(--primary);
+    }
+    .sdg-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .recent-activity {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .activity-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: start;
+      gap: 1rem;
+    }
+    .activity-icon {
+      font-size: 1.5rem;
+      min-width: 40px;
+    }
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      font-weight: 700;
+      color: white;
+    }
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .rank-2 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .rank-3 { background: linear-gradient(135deg, #d97706, #b45309); }
+    .rank-other { background: var(--primary); }
+  </style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <h2>📊 Impact Analytics Dashboard</h2>
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
+    Real-time insights into food redistribution and social impact
+  </p>
+</header>
+
+<main class="dashboard" style="max-width: 1400px; margin: 0 auto;">
+
+  <!-- KEY METRICS -->
+  <div class="analytics-grid">
+    <div class="metric-card">
+      <div class="metric-icon">🍽️</div>
+      <div class="metric-value" id="totalMealsServed">0</div>
+      <div class="metric-label">Total Meals Served</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">📦</div>
+      <div class="metric-value" id="totalDonations">0</div>
+      <div class="metric-label">Total Donations</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">✅</div>
+      <div class="metric-value" id="completedDeliveries">0</div>
+      <div class="metric-label">Completed Deliveries</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">🏢</div>
+      <div class="metric-value" id="activeNGOs">0</div>
+      <div class="metric-label">Active NGO Partners</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">♻️</div>
+      <div class="metric-value" id="foodSaved">0</div>
+      <div class="metric-label">People Fed (Food Saved)</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">⚡</div>
+      <div class="metric-value" id="avgResponseTime">--</div>
+      <div class="metric-label">Avg Response Time</div>
+    </div>
+  </div>
+
+  <!-- SDG IMPACT -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1.5rem;">🌍 UN Sustainable Development Goals Impact</h3>
+    <div class="sdg-grid">
+      <div class="sdg-card">
+        <div class="sdg-number">SDG 2</div>
+        <h4 style="margin: 0.5rem 0;">Zero Hunger</h4>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0;" id="sdgZeroHunger">0</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">meals provided</p>
+      </div>
+
+      <div class="sdg-card">
+        <div class="sdg-number">SDG 12</div>
+        <h4 style="margin: 0.5rem 0;">Responsible Consumption</h4>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0;" id="sdgResponsible">0</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">kg food waste prevented</p>
+      </div>
+
+      <div class="sdg-card">
+        <div class="sdg-number">SDG 17</div>
+        <h4 style="margin: 0.5rem 0;">Partnerships</h4>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0;" id="sdgPartnerships">0</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">active collaborations</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    
+    <!-- NGO LEADERBOARD -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem;">🏆 Top Performing NGOs</h3>
+      <div id="leaderboard">
+        <!-- Leaderboard items will be inserted here -->
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem;">📝 Recent Activity</h3>
+      <div class="recent-activity" id="recentActivity">
+        <!-- Activity items will be inserted here -->
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// Load analytics data
+async function loadAnalytics() {
+  try {
+    const res = await fetch('/api/analytics');
+    const data = await res.json();
+
+    // Update key metrics
+    document.getElementById('totalMealsServed').textContent = data.totalMealsServed || 0;
+    document.getElementById('totalDonations').textContent = data.totalDonors || 0;
+    document.getElementById('completedDeliveries').textContent = data.completedDeliveries || 0;
+    document.getElementById('activeNGOs').textContent = data.activeNGOs || 0;
+    document.getElementById('foodSaved').textContent = data.totalFoodSaved || 0;
+    document.getElementById('avgResponseTime').textContent = data.averageResponseTime || '15 mins';
+
+    // Update SDG metrics
+    document.getElementById('sdgZeroHunger').textContent = data.sdgImpact?.zeroHunger || 0;
+    document.getElementById('sdgResponsible').textContent = data.sdgImpact?.responsibleConsumption || 0;
+    document.getElementById('sdgPartnerships').textContent = data.sdgImpact?.partnerships || 0;
+
+  } catch (error) {
+    console.error('Error loading analytics:', error);
+  }
+}
+
+// Load NGO leaderboard
+async function loadLeaderboard() {
+  try {
+    const res = await fetch('/api/ngo');
+    const ngos = await res.json();
+
+    // Sort by total deliveries
+    ngos.sort((a, b) => (b.totalDeliveries || 0) - (a.totalDeliveries || 0));
+
+    const leaderboard = document.getElementById('leaderboard');
+    leaderboard.innerHTML = '';
+
+    if (ngos.length === 0) {
+      leaderboard.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No NGOs registered yet</p>';
+      return;
+    }
+
+    ngos.slice(0, 5).forEach((ngo, index) => {
+      const rank = index + 1;
+      const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+
+      const item = document.createElement('div');
+      item.className = 'leaderboard-item';
+      item.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="rank-badge ${rankClass}">${rank}</div>
+          <div>
+            <strong>${ngo.name || 'NGO ' + rank}</strong>
+            <br>
+            <small style="color: var(--text-muted);">⭐ ${ngo.reliabilityScore}% reliability</small>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <strong style="color: var(--primary);">${ngo.totalDeliveries || 0}</strong>
+          <br>
+          <small style="color: var(--text-muted);">deliveries</small>
+        </div>
+      `;
+      leaderboard.appendChild(item);
+    });
+
+  } catch (error) {
+    console.error('Error loading leaderboard:', error);
+  }
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+  try {
+    const [donorsRes, matchesRes] = await Promise.all([
+      fetch('/api/donor'),
+      fetch('/api/matches')
+    ]);
+
+    const donors = await donorsRes.json();
+    const matches = await matchesRes.json();
+
+    const activity = document.getElementById('recentActivity');
+    activity.innerHTML = '';
+
+    // Combine and sort by timestamp
+    const activities = [
+      ...donors.map(d => ({ type: 'donation', data: d, time: d.createdAt })),
+      ...matches.filter(m => m.status === 'Delivered').map(m => ({ type: 'delivery', data: m, time: m.deliveredAt }))
+    ].sort((a, b) => new Date(b.time) - new Date(a.time));
+
+    if (activities.length === 0) {
+      activity.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No recent activity</p>';
+      return;
+    }
+
+    activities.slice(0, 10).forEach(act => {
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+
+      if (act.type === 'donation') {
+        item.innerHTML = `
+          <div class="activity-icon">📦</div>
+          <div>
+            <strong>New donation: ${act.data.eventSpaceName}</strong>
+            <br>
+            <small style="color: var(--text-muted);">
+              ${act.data.quantity} people • ${act.data.foodType} • ${act.data.location}
+            </small>
+            <br>
+            <small style="color: var(--text-muted);">${formatTimeAgo(act.time)}</small>
+          </div>
+        `;
+      } else {
+        const donor = donors.find(d => d.id === act.data.donorId);
+        item.innerHTML = `
+          <div class="activity-icon">✅</div>
+          <div>
+            <strong>Delivery completed</strong>
+            <br>
+            <small style="color: var(--text-muted);">
+              ${donor?.eventSpaceName || 'Donation'} → ${act.data.recipientName || 'Recipient'}
+            </small>
+            <br>
+            <small style="color: var(--text-muted);">${formatTimeAgo(act.time)}</small>
+          </div>
+        `;
+      }
+
+      activity.appendChild(item);
+    });
+
+  } catch (error) {
+    console.error('Error loading activity:', error);
+  }
+}
+
+// Format time ago
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return 'Just now';
+  
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diffMs = now - then;
+  const diffMins = Math.floor(diffMs / 60000);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} mins ago`;
+  
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hours ago`;
+  
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} days ago`;
+}
+
+// Initial load
+loadAnalytics();
+loadLeaderboard();
+loadRecentActivity();
+
+// Auto-refresh every 10 seconds
+setInterval(() => {
+  loadAnalytics();
+  loadLeaderboard();
+  loadRecentActivity();
+}, 10000);
+</script>
+
+</body>
+</html>
